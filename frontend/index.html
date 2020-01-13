@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Catalog carti</title>
+        <link rel="stylesheet" href="styles.css" />
+    </head>
+    <body>
+       <section> 
+       <h2>CARTI</h2>
+       <div>
+           <div>
+        <form onSubmit="adaugaCarte(event)">
+  <input type="hidden" name="id" id="id" /><br />
+  Nume carte:<br />
+  <input type="text" name="nume" id="nume" /><br />
+  Autor:<br />
+  <input type="text" name="autor" id="autor"><br/>
+  Pret:<br />
+  <input type="text" name="pret" id="pret"><br/>
+  <br />
+  <input class="btn btn-primary" type="submit" value="Adauga carte">
+  <input class="btn btn-primary" type="reset" value="Sterge">
+</form>
+</div>
+</div>
+<section>
+            <h2>CATALOG CARTI</h2>
+            <div>
+                <div class="cart-row">
+                <!--    <table style="width:100%;">-->
+                <!--<tr class="cart-row">-->
+                <!--    <th class="cart-item cart-header cart-column">ID</th>-->
+                <!--    <th class="cart-item cart-header cart-column">NUME CARTE</th>-->
+                <!--    <th class="cart-item cart-header cart-column">AUTOR</th>-->
+                <!--    <th class="cart-item cart-header cart-column">PRET</th>-->
+                <!--    <th class="cart-item cart-header cart-column">ELIMINA PRODUS</th>-->
+                <!--</tr>-->
+                <!--<tr class="cart-row">-->
+                <!--    <td class="cart-item cart-header cart-column">1</td>-->
+                <!--    <td class="cart-item cart-header cart-column">Sapiens. Scurta istorie a omenirii</td>-->
+                <!--    <td class="cart-item cart-header cart-column">Yuval Noah Harari</td>-->
+                <!--    <td class="cart-item cart-header cart-column">70RON</td>-->
+                <!--     <td class="cart-item cart-header cart-column">-->
+                <!--        <button class="btn btn-danger">Elimina</button>-->
+                <!--    </td>-->
+                <!--</tr>-->
+                    </table>
+                </div>
+            </div>
+        </section>
+
+<div id="table"></div>
+<script 
+    src="https://code.jquery.com/jquery-3.3.1.min.js"
+    integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+    crossorigin="anonymous"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+<script>
+function afisareCarti() {
+    axios.get('/catalog').then(function(results) {
+
+        let html = ` <table style="width:100%;">
+                <tr class="cart-row">
+                    <th class="cart-item cart-header cart-column">ID</th>
+                    <th class="cart-item cart-header cart-column">NUME CARTE</th>
+                    <th class="cart-item cart-header cart-column">AUTOR</th>
+                    <th class="cart-item cart-header cart-column">PRET</th>
+                    <th class="cart-item cart-header cart-column">ELIMINA PRODUS</th>
+                </tr>`
+
+        results.data.forEach(function(element) {
+            html += `<tr class="cart-row">
+                        <td class="cart-item cart-header cart-column">${element.id}</td>
+                        <td class="cart-item cart-header cart-column">${element.nume}</td>
+                        <td class="cart-item cart-header cart-column">${element.autor}</td>
+                        <td class="cart-item cart-header cart-column">${element.pret}</td>
+                        <td class="cart-item cart-header cart-column">
+                            <button class="btn btn-danger" onClick="eliminaCarte(${element.id})">Elimina</button>
+                        </td>
+                    </tr>`
+        })
+
+        html += `</table>`
+
+        $('#table').html(html)
+    }).catch(function(error) {
+        console.log(error)
+    })
+}
+</script>
+
+<script>
+    function adaugaCarte(event) {
+    event.preventDefault()
+
+    let id = $('#id').val()
+    let nume = $('#nume').val()
+    let autor = $('#autor').val()
+    let pret = $('#pret').val() 
+
+    if(id) {
+        console.log('Cartea exista deja')
+    } else {
+        axios.post('/carti', {
+    nume: nume,
+    autor: autor,
+    pret: pret
+}).then(function(result) {
+    afisareCarti()
+    $(event.target).trigger("reset")
+}).catch(function(err) {
+    alert('Resource could not be saved')
+})
+    }
+
+}
+</script>
+
+<script>
+   function eliminaCarte(id) {
+    axios.delete('/carti/'+id).then(function(result) {
+        afisareCarti()
+    }).catch(function(err) {
+        alert('Resource could not delete resource')
+    }) 
+}
+</script>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        console.log('Hello from JQuery')
+        afisareCarti()
+    })
+</script>
+
+    </body>
+</html>
